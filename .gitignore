@@ -18,3 +18,4 @@ tmp
 .greenbar
 .ruby-gemset
 .ruby-version
+.fake_dynamo.pid
