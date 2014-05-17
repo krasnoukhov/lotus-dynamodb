@@ -1,14 +1,22 @@
 require 'test_helper'
+require 'aws-sdk'
 
 describe Lotus::Model::Adapters::Dynamodb::Query do
   before do
     MockDataset = Struct.new(:records) do
+      include AWS::DynamoDB::Types
+
       def query(options = {})
         records
       end
 
       def scan(options = {})
         records
+      end
+
+      def key?(column, index = nil)
+        return true if index.nil? && column == :id
+        false
       end
 
       def to_s
@@ -137,6 +145,100 @@ describe Lotus::Model::Adapters::Dynamodb::Query do
             assert @query.any? {|e| e % 2 == 0 }
           end
         end
+      end
+    end
+  end
+
+  describe 'operation' do
+    describe 'scan' do
+      it 'equals by default' do
+        @query.operation.must_equal :scan
+      end
+
+      it 'equals after where call' do
+        @query.where(something: 'anything').operation.must_equal :scan
+      end
+
+      it 'equals after or call' do
+        @query.or.operation.must_equal :scan
+      end
+
+      it 'equals after exclude call' do
+        @query.exclude(something: 'anything').operation.must_equal :scan
+      end
+
+      it 'equals after select call' do
+        @query.select('wow').operation.must_equal :scan
+      end
+
+      it 'equals after limit call' do
+        @query.limit(1).operation.must_equal :scan
+      end
+
+      it 'equals after count call' do
+        @query.count
+        @query.operation.must_equal :scan
+      end
+    end
+
+    describe 'query' do
+      describe 'after query call' do
+        before do
+          @query = @query.query
+        end
+
+        it 'equals' do
+          @query.operation.must_equal :query
+        end
+
+        it 'equals after or call' do
+          @query.or.operation.must_equal :query
+        end
+
+        it 'equals after selet call' do
+          @query.select('wow').operation.must_equal :query
+        end
+
+        it 'equals after limit call' do
+          @query.limit(1).operation.must_equal :query
+        end
+
+        it 'equals after count call' do
+          @query.count
+          @query.operation.must_equal :query
+        end
+      end
+
+      describe 'after where with key schema call' do
+        before do
+          @query = @query.where(id: 1)
+        end
+
+        it 'equals' do
+          @query.operation.must_equal :query
+        end
+
+        it 'equals after exclude call' do
+          @query.exclude(something: 'anything').operation.must_equal :query
+        end
+      end
+
+      describe 'after order call' do
+        it 'equals after asc call' do
+          @query.asc.operation.must_equal :query
+        end
+
+        it 'equals after desc call' do
+          @query.desc.operation.must_equal :query
+        end
+      end
+
+      it 'equals after consistent call' do
+        @query.consistent.operation.must_equal :query
+      end
+
+      it 'equals after index call' do
+        @query.index('omg').operation.must_equal :query
       end
     end
   end

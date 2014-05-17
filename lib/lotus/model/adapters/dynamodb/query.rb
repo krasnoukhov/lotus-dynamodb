@@ -62,13 +62,6 @@ module Lotus
             instance_eval(&blk) if block_given?
           end
 
-          # Set operation to be query instead of scan.
-          #
-          # @since 0.1.0
-          def query
-            @operation = :query
-          end
-
           # Resolves the query by fetching records from the database and
           # translating them into entities.
           #
@@ -77,6 +70,16 @@ module Lotus
           # @since 0.1.0
           def all
             @collection.deserialize(run.entries)
+          end
+
+          # Set operation to be query instead of scan.
+          #
+          # @return self
+          #
+          # @since 0.1.0
+          def query
+            @operation = :query
+            self
           end
 
           # Adds a condition that behaves like SQL `WHERE`.
@@ -184,6 +187,7 @@ module Lotus
           def select(*columns)
             @options[:select] = "SPECIFIC_ATTRIBUTES"
             @options[:attributes_to_get] = columns.map(&:to_s)
+            self
           end
 
           # Specify the ascending order of the records, sorted by the range key.

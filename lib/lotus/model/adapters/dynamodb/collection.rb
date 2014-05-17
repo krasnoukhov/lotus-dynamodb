@@ -201,9 +201,9 @@ module Lotus
             end]
           end
 
-          # Checks if given attribute is in key schema or not.
+          # Checks if given column is in key schema or not.
           #
-          # @param attribute [String] attribute to check
+          # @param column [String] column to check
           # @param index [String] index to check (defaults to table itself)
           #
           # @see Lotus::Model::Adapters::Dynamodb::Collection#key_schema
@@ -212,8 +212,8 @@ module Lotus
           #
           # @api private
           # @since 0.1.0
-          def key?(attribute, index = nil)
-            key_schema(index).has_key?(attribute)
+          def key?(column, index = nil)
+            key_schema(index).has_key?(column)
           end
 
           # Serialize given entity to have proper attributes for 'item' query.
