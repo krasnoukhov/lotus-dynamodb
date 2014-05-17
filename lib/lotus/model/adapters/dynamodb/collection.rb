@@ -13,15 +13,15 @@ module Lotus
         class Collection
           include AWS::DynamoDB::Types
 
-          # Response interface provides count and entries.
+          # Response interface provides count and entities.
           #
           # @api private
           # @since 0.1.0
           class Response
-            attr_accessor :count, :entries
+            attr_accessor :count, :entities
 
-            def initialize(count, entries = nil)
-              @count, @entries = count, entries
+            def initialize(count, entities = nil)
+              @count, @entities = count, entities
             end
           end
 
@@ -276,7 +276,7 @@ module Lotus
           def deserialize_response(response)
             result = Response.new(response[:count])
 
-            result.entries = response[:member].map do |item|
+            result.entities = response[:member].map do |item|
               deserialize_item(item)
             end if response[:member]
 

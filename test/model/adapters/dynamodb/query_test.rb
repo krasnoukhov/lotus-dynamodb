@@ -3,8 +3,18 @@ require 'aws-sdk'
 
 describe Lotus::Model::Adapters::Dynamodb::Query do
   before do
-    MockDataset = Struct.new(:records) do
+    MockResponse = Struct.new(:entities)
+
+    class MockDataset
       include AWS::DynamoDB::Types
+
+      attr_accessor :entities
+      attr_accessor :records
+
+      def initialize(entities)
+        @entities = entities
+        @records = MockResponse.new(entities)
+      end
 
       def query(options = {})
         records
@@ -35,6 +45,7 @@ describe Lotus::Model::Adapters::Dynamodb::Query do
   end
 
   after do
+    Object.send(:remove_const, :MockResponse)
     Object.send(:remove_const, :MockDataset)
     Object.send(:remove_const, :MockCollection)
   end
@@ -98,8 +109,8 @@ describe Lotus::Model::Adapters::Dynamodb::Query do
   describe '#to_s' do
     let(:dataset) { MockDataset.new([1, 2, 3]) }
 
-    it 'delegates to the wrapped dataset' do
-      @query.to_s.must_equal dataset.to_s
+    it 'must be array representation' do
+      @query.to_s.must_equal dataset.entities.to_s
     end
   end
 

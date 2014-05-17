@@ -92,7 +92,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def clear
-            @collection.deserialize(@dataset.scan.entries).each do |entity|
+            @collection.deserialize(@dataset.scan.entities).each do |entity|
               delete(entity)
             end
           end

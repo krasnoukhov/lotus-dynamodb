@@ -69,7 +69,7 @@ module Lotus
           #
           # @since 0.1.0
           def all
-            @collection.deserialize(run.entries)
+            @collection.deserialize(run.entities)
           end
 
           # Set operation to be query instead of scan.
