@@ -742,7 +742,6 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
 
         describe 'global index' do
           it 'returns selected records' do
-            skip_for_fake_dynamo
             id = purchase3.id
 
             query = Proc.new {
