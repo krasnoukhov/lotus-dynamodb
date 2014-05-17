@@ -149,6 +149,7 @@ module Lotus
         # Fabricates a query
         #
         # @param collection [Symbol] the target collection (it must be mapped)
+        # @param context [Object]
         # @param blk [Proc] a block of code to be executed in the context of
         #   the query.
         #
@@ -158,7 +159,7 @@ module Lotus
         #
         # @api private
         # @since 0.1.0
-        def query(collection, &blk)
+        def query(collection, context = nil, &blk)
           Dynamodb::Query.new(_collection(collection), _mapped_collection(collection), &blk)
         end
 

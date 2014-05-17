@@ -190,15 +190,15 @@ module Lotus
             current_schema = if index
               everything = Array(schema[:local_secondary_indexes]) +
                            Array(schema[:global_secondary_indexes])
-              indexes = everything.map { |i| [i[:index_name], i] }.to_h
+              indexes = Hash[everything.map { |i| [i[:index_name], i] }]
               indexes[index][:key_schema]
             else
               schema[:key_schema]
             end
 
-            @key_schema[index] ||= current_schema.to_a.map do |key|
+            @key_schema[index] ||= Hash[current_schema.to_a.map do |key|
               [key[:attribute_name].to_sym, key[:key_type]]
-            end.to_h
+            end]
           end
 
           # Checks if given attribute is in key schema or not.
@@ -227,7 +227,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def serialize_item(entity)
-            entity.map { |k, v| [k.to_s, format_attribute_value(v)] }.to_h
+            Hash[entity.map { |k, v| [k.to_s, format_attribute_value(v)] }]
           end
 
           # Serialize given entity or primary key to have proper attributes
@@ -242,10 +242,10 @@ module Lotus
           # @api private
           # @since 0.1.0
           def serialize_key(entity)
-            key_schema.keys.each_with_index.map do |k, idx|
+            Hash[key_schema.keys.each_with_index.map do |k, idx|
               v = entity.is_a?(Hash) ? entity[k] : entity[idx]
               [k.to_s, format_attribute_value(v)]
-            end.to_h
+            end]
           end
 
           # Serialize given entity to exclude key schema attributes.
@@ -260,9 +260,9 @@ module Lotus
           # @since 0.1.0
           def serialize_attributes(entity)
             keys = key_schema.keys
-            entity.reject { |k, _| keys.include?(k) }.map do |k, v|
+            Hash[entity.reject { |k, _| keys.include?(k) }.map do |k, v|
               [k.to_s, { value: format_attribute_value(v), action: "PUT" }]
-            end.to_h
+            end]
           end
 
           # Deserialize DynamoDB scan/query response.
