@@ -16,6 +16,7 @@ It is built on top of ```AWS::DynamoDB::Client```, which is part of ```aws-sdk``
 [![Build Status](https://secure.travis-ci.org/krasnoukhov/lotus-dynamodb.svg?branch=master)](http://travis-ci.org/krasnoukhov/lotus-dynamodb?branch=master)
 [![Coverage Status](https://img.shields.io/coveralls/krasnoukhov/lotus-dynamodb.svg)](https://coveralls.io/r/krasnoukhov/lotus-dynamodb?branch=master)
 [![Code Climate](https://img.shields.io/codeclimate/github/krasnoukhov/lotus-dynamodb.svg)](https://codeclimate.com/github/krasnoukhov/lotus-dynamodb)
+[![Inline docs](http://inch-pages.github.io/github/krasnoukhov/lotus-dynamodb.svg)](http://inch-pages.github.io/github/krasnoukhov/lotus-dynamodb)
 [![Dependencies](https://gemnasium.com/krasnoukhov/lotus-dynamodb.svg)](https://gemnasium.com/krasnoukhov/lotus-dynamodb)
 
 ## Installation
