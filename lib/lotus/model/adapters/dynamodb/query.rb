@@ -198,7 +198,7 @@ module Lotus
           #
           # @see Lotus::Model::Adapters::Dynamodb::Query#desc
           def order(*columns)
-            warn "DynamoDB does not support arbitrary order" if columns.any?
+            warn "DynamoDB only supports order by range_key" if columns.any?
 
             query
             @options[:scan_index_forward] = true
@@ -215,7 +215,7 @@ module Lotus
           #
           # @see Lotus::Model::Adapters::Dynamodb::Query#asc
           def desc(*columns)
-            warn "DynamoDB does not support arbitrary order" if columns.any?
+            warn "DynamoDB only supports order by range_key" if columns.any?
 
             query
             @options[:scan_index_forward] = false
