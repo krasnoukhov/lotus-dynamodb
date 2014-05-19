@@ -1,9 +1,21 @@
 require 'forwardable'
 require 'lotus/utils/kernel'
 
+# Lotus namespace
+#
+# @since 0.1.0
 module Lotus
+  # Lotus::Model namespace
+  #
+  # @since 0.1.0
   module Model
+    # Lotus::Adapters namespace
+    #
+    # @since 0.1.0
     module Adapters
+      # Lotus::Adapters::Dynamodb namespace
+      #
+      # @since 0.1.0
       module Dynamodb
         # Query DynamoDB table with a powerful API.
         #
