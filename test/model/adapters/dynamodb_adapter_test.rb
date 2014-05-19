@@ -45,6 +45,7 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
     end.load!
 
     @adapter = Lotus::Model::Adapters::DynamodbAdapter.new(@mapper)
+    @adapter.clear(collection)
   end
 
   after do
@@ -159,10 +160,6 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
 
   describe '#all' do
     describe 'when no records are persisted' do
-      before do
-        @adapter.clear(collection)
-      end
-
       it 'returns an empty collection' do
         @adapter.all(collection).must_be_empty
       end
@@ -170,7 +167,6 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
 
     describe 'when some records are persisted' do
       before do
-        @adapter.clear(collection)
         @adapter.create(collection, entity)
       end
 
@@ -235,10 +231,6 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
   end
 
   describe '#query' do
-    before do
-      @adapter.clear(collection)
-    end
-
     let(:collection) { :test_purchases }
     let(:purchase1) do
       TestPurchase.new(
@@ -505,10 +497,6 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
     end
 
     describe 'order' do
-      before do
-        @adapter.clear(collection)
-      end
-
       let(:collection) { :test_devices }
       let(:device1) { TestDevice.new(id: 'device', created_at: Time.new.to_f) }
       let(:device2) { TestDevice.new(id: 'device', created_at: Time.new.to_f) }
