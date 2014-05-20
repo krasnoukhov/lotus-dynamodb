@@ -1,5 +1,4 @@
 require 'test_helper'
-require 'aws-sdk'
 
 describe Lotus::Model::Adapters::Dynamodb::Query do
   before do

@@ -218,7 +218,17 @@ module Lotus
             key_schema(index).has_key?(column)
           end
 
-          # TODO: Doc
+          # Coerce and format attribute value to match DynamoDB type.
+          #
+          # @param column [String] the attribute column
+          # @param value [Object] the attribute value
+          #
+          # @see AWS::DynamoDB::Types
+          #
+          # @return [Hash] the formatted attribute
+          #
+          # @api private
+          # @since 0.1.0
           def format_attribute(column, value)
             value = @coercer.public_send(:"serialize_#{ column }", value)
             format_attribute_value(value)
