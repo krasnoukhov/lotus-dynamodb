@@ -10,9 +10,26 @@ module Lotus
         # @api private
         # @since 0.1.0
         class Coercer < Lotus::Model::Mapping::Coercer
-          SKIPPED_KLASSES = [Float, Integer, String]
-          SUPPORTED_KLASSES = [Array, Boolean, Date, DateTime, Hash, Time]
-          UNSPPORTED_KLASSES = [Set]
+          SKIPPED_KLASSES = [Float, Integer, Set, String]
+          SUPPORTED_KLASSES = [AWS::DynamoDB::Binary, Array, Boolean, Date, DateTime, Hash, Time]
+
+          # Converts value from given type to DynamoDB record value.
+          #
+          # @api private
+          # @since 0.1.0
+          def from_aws_dynamodb_binary(value)
+            # aws-sdk does it already
+            value
+          end
+
+          # Converts value from DynamoDB record value to given type.
+          #
+          # @api private
+          # @since 0.1.0
+          def to_aws_dynamodb_binary(value)
+            return value if value.nil? || value.is_a?(AWS::DynamoDB::Binary)
+            AWS::DynamoDB::Binary.new(value)
+          end
 
           # Converts value from given type to DynamoDB record value.
           #
@@ -118,24 +135,12 @@ module Lotus
           def _compile!
             instance_eval(SKIPPED_KLASSES.map do |klass|
               %{
-              def from_#{klass.to_s.downcase}(value)
+              def from_#{_method_name(klass)}(value)
                 value
               end
 
-              def to_#{klass.to_s.downcase}(value)
+              def to_#{_method_name(klass)}(value)
                 value
-              end
-              }
-            end.join("\n"))
-
-            instance_eval(UNSPPORTED_KLASSES.map do |klass|
-              %{
-              def from_#{klass.to_s.downcase}(value)
-                raise NotImplementedError, "#{klass} coercion is not supported"
-              end
-
-              def to_#{klass.to_s.downcase}(value)
-                raise NotImplementedError, "#{klass} coercion is not supported"
               end
               }
             end.join("\n"))
@@ -143,11 +148,11 @@ module Lotus
             code = @collection.attributes.map do |_,(klass,mapped)|
               %{
               def deserialize_#{ mapped }(value)
-                Lotus::Utils::Kernel.#{klass}(from_#{klass.to_s.downcase}(value))
+                #{kernel_wrap(klass) { "from_#{_method_name(klass)}(value)" }}
               end
 
               def serialize_#{ mapped }(value)
-                from_#{klass.to_s.downcase}(value)
+                from_#{_method_name(klass)}(value)
               end
               }
             end.join("\n")
@@ -155,20 +160,40 @@ module Lotus
             instance_eval %{
               def to_record(entity)
                 if entity.id
-                  Hash[*[#{ @collection.attributes.map{|name,(klass,mapped)| ":#{mapped},from_#{klass.to_s.downcase}(entity.#{name})"}.join(',') }]]
+                  Hash[*[#{ @collection.attributes.map{|name,(klass,mapped)| ":#{mapped},from_#{_method_name(klass)}(entity.#{name})"}.join(',') }]]
                 else
-                  Hash[*[#{ @collection.attributes.reject{|name,_| name == @collection.identity }.map{|name,(klass,mapped)| ":#{mapped},from_#{klass.to_s.downcase}(entity.#{name})"}.join(',') }]]
+                  Hash[*[#{ @collection.attributes.reject{|name,_| name == @collection.identity }.map{|name,(klass,mapped)| ":#{mapped},from_#{_method_name(klass)}(entity.#{name})"}.join(',') }]]
                 end
               end
 
               def from_record(record)
                 #{ @collection.entity }.new(
-                  Hash[*[#{ @collection.attributes.map{|name,(klass,mapped)| ":#{name},Lotus::Utils::Kernel.#{klass}(to_#{klass.to_s.downcase}(record[:#{mapped}]))"}.join(',') }]]
+                  Hash[*[#{ @collection.attributes.map{|name,(klass,mapped)| ":#{name},#{kernel_wrap(klass) { "to_#{_method_name(klass)}(record[:#{mapped}])" }}"}.join(',') }]]
                 )
               end
 
               #{ code }
             }
+          end
+
+          # Wraps string in Lotus::Utils::Kernel call if needed.
+          #
+          # @api private
+          # @since 0.1.0
+          def kernel_wrap(klass)
+            if klass.to_s.include?("::")
+              yield
+            else
+              "Lotus::Utils::Kernel.#{klass}(#{yield})"
+            end
+          end
+
+          # Returns method name from klass.
+          #
+          # @api private
+          # @since 0.1.0
+          def _method_name(klass)
+            klass.to_s.downcase.gsub("::", "_")
           end
 
           # Serializes value to string.

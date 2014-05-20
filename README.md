@@ -39,11 +39,11 @@ Please refer to [Lotus::Model](https://github.com/lotus/model#usage) docs for de
 
 ### Data types
 
-This adapter supports coercion to a following DynamoDB types: ```S```, ```N```.
-At the moment, Blob type and all Set types are not supported.
+This adapter supports coercion to all DynamoDB types, including blobs and sets.
 
 List of Ruby types which are supported:
 
+* AWS::DynamoDB::Binary – ```B```
 * Array – ```S``` (via MultiJson)
 * Boolean – ```N``` (1 for true and 0 for false)
 * Date – ```N``` (Integer, seconds since Epoch)
@@ -51,12 +51,14 @@ List of Ruby types which are supported:
 * Float – ```N```
 * Hash – ```S``` (via MultiJson)
 * Integer – ```N```
+* Set – ```SS```, ```NS```, ```BS``` (Set of String, Number or AWS::DynamoDB::Binary)
 * String – ```S```
 * Time – ```N``` (Float, seconds since Epoch)
 
 #### Example
 
 ##### Table
+
 Say, we have a ```purchases``` DynamoDB table:
 
 ```
@@ -121,7 +123,7 @@ Local secondary index allows sorting records by subtotal, and global index is us
 ```
 class Purchase do
   include Lotus::Entity
-  self.attributes = :id, :region, :subtotal, :created_at
+  self.attributes = :id, :region, :subtotal, :item_ids, :content, :created_at
 end
 ```
 
@@ -146,6 +148,7 @@ class PurchaseRepository
   end
 end
 ```
+
 ##### Mapper
 
 ```
@@ -157,6 +160,8 @@ mapper = Lotus::Model::Mapper.new(coercer) do
     attribute :id,         String, as: :uuid
     attribute :region,     String
     attribute :subtotal,   Float
+    attribute :item_ids,   Set
+    attribute :content,    AWS::DynamoDB::Binary
     attribute :created_at, Time
 
     identity :uuid
@@ -181,10 +186,9 @@ PurchaseRepository.adapter = Lotus::Model::Adapters::DynamodbAdapter.new(mapper)
 
 ```
 purchases = [
-  { region: "europe", subtotal: 15.0 },
-  { region: "europe", subtotal: 10.0 },
-  { region: "usa",    subtotal: 5.0 },
-  { region: "asia",   subtotal: 100.0 },
+  { region: "europe", subtotal: 15.0,  item_ids: [1, 2] },
+  { region: "europe", subtotal: 10.0,  content: "Huge Blob Here" },
+  { region: "usa",    subtotal: 5.0,   item_ids: ["strings", "as", "well"] },
 ].map do |purchase|
   PurchaseRepository.create(
     Purchase.new(purchase.merge(created_at: Time.new))

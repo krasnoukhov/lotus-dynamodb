@@ -10,7 +10,7 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
       include Lotus::Entity
     end
 
-    TestPurchase = Struct.new(:id, :region, :subtotal, :created_at) do
+    TestPurchase = Struct.new(:id, :region, :subtotal, :item_ids, :content, :created_at) do
       include Lotus::Entity
     end
 
@@ -39,6 +39,8 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
         attribute :id,         String, as: :uuid
         attribute :region,     String
         attribute :subtotal,   Float
+        attribute :item_ids,   Set
+        attribute :content,    AWS::DynamoDB::Binary
         attribute :created_at, Time
 
         identity :uuid
@@ -237,31 +239,70 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
       TestPurchase.new(
         region: 'europe',
         subtotal: 15.0,
-        created_at: Time.new
+        item_ids: [1, 2, 3],
+        content: "OMG",
+        created_at: Time.new,
       )
     end
     let(:purchase2) do
       TestPurchase.new(
         region: 'europe',
         subtotal: 10.0,
-        created_at: Time.new
+        item_ids: ["2", "3", "4"],
+        content: AWS::DynamoDB::Binary.new("SO"),
+        created_at: Time.new,
       )
     end
     let(:purchase3) do
       TestPurchase.new(
         region: 'usa',
         subtotal: 5.0,
-        created_at: Time.new
+        item_ids: [AWS::DynamoDB::Binary.new("WOW")],
+        content: AWS::DynamoDB::Binary.new("MUCH"),
+        created_at: Time.new,
       )
     end
     let(:purchase4) do
       TestPurchase.new(
         region: 'asia',
         subtotal: 100.0,
-        created_at: Time.new
+        item_ids: [4, 5, 6],
+        content: AWS::DynamoDB::Binary.new("CONTENT"),
+        created_at: Time.new,
       )
     end
     let(:purchases) { [purchase1, purchase2, purchase3, purchase4] }
+
+    describe 'types' do
+      before do
+        purchases.each do |purchase|
+          @adapter.create(collection, purchase)
+        end
+
+        @purchases = @adapter.query(collection).all.sort_by(&:created_at)
+      end
+
+      it 'has string type' do
+        @purchases.first.region.class.must_equal String
+      end
+
+      it 'has number type' do
+        @purchases.first.subtotal.class.must_equal Float
+      end
+
+      it 'has set type' do
+        @purchases.first.item_ids.class.must_equal Set
+        @purchases.at(0).item_ids.map(&:class).must_equal [BigDecimal, BigDecimal, BigDecimal]
+        @purchases.at(1).item_ids.map(&:class).must_equal [String, String, String]
+        @purchases.at(2).item_ids.map(&:class).must_equal [AWS::DynamoDB::Binary]
+      end
+
+      it 'has binary type' do
+        @purchases.each do |purchase|
+          purchase.content.class.must_equal AWS::DynamoDB::Binary
+        end
+      end
+    end
 
     describe 'where' do
       describe 'with an empty collection' do

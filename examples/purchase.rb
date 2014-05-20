@@ -75,7 +75,7 @@ end
 
 class Purchase
   include Lotus::Entity
-  self.attributes = :id, :region, :subtotal, :created_at
+  self.attributes = :id, :region, :subtotal, :item_ids, :content, :created_at
 end
 
 class PurchaseRepository
@@ -104,6 +104,8 @@ mapper = Lotus::Model::Mapper.new(coercer) do
     attribute :id,         String, as: :uuid
     attribute :region,     String
     attribute :subtotal,   Float
+    attribute :item_ids,   Set
+    attribute :content,    AWS::DynamoDB::Binary
     attribute :created_at, Time
 
     identity :uuid
@@ -117,9 +119,9 @@ PurchaseRepository.adapter = Lotus::Model::Adapters::DynamodbAdapter.new(mapper)
 #
 
 purchases = [
-  { region: "europe", subtotal: 15.0 },
-  { region: "europe", subtotal: 10.0 },
-  { region: "usa",    subtotal: 5.0 },
+  { region: "europe", subtotal: 15.0,  item_ids: [1, 2] },
+  { region: "europe", subtotal: 10.0,  content: "Huge Blob Here" },
+  { region: "usa",    subtotal: 5.0,   item_ids: ["strings", "as", "well"] },
   { region: "asia",   subtotal: 100.0 },
 ].map do |purchase|
   PurchaseRepository.create(

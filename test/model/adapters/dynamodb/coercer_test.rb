@@ -48,6 +48,15 @@ describe Lotus::Model::Adapters::Dynamodb::Coercer do
         end
       end
 
+      describe 'Set' do
+        let(:subject) { Set.new([1, 2, 3]) }
+
+        it 'remains unchanged' do
+          @coercer.from_set(subject).class.must_equal Set
+          @coercer.from_set(subject).must_equal subject
+        end
+      end
+
       describe 'String' do
         let(:subject) { "omg" }
 
@@ -59,6 +68,17 @@ describe Lotus::Model::Adapters::Dynamodb::Coercer do
     end
 
     describe 'supported' do
+      describe 'AWS::DynamoDB::Binary' do
+        let(:subject) { AWS::DynamoDB::Binary.new("HUUUGE") }
+
+        it 'coerces' do
+          @coercer.from_aws_dynamodb_binary(subject).class.must_equal \
+            AWS::DynamoDB::Binary
+          @coercer.from_aws_dynamodb_binary(subject).must_equal \
+            AWS::DynamoDB::Binary.new(subject)
+        end
+      end
+
       describe 'Array' do
         let(:subject) { ["omg"] }
 
@@ -113,14 +133,6 @@ describe Lotus::Model::Adapters::Dynamodb::Coercer do
         end
       end
     end
-
-    describe 'unsupported' do
-      describe 'Set' do
-        it 'raises an error' do
-          ->{ @coercer.from_set(nil) }.must_raise NotImplementedError
-        end
-      end
-    end
   end
 
   describe '#to_*' do
@@ -141,6 +153,15 @@ describe Lotus::Model::Adapters::Dynamodb::Coercer do
         end
       end
 
+      describe 'Set' do
+        let(:subject) { Set.new([1, 2, 3]) }
+
+        it 'remains unchanged' do
+          @coercer.to_set(subject).class.must_equal Set
+          @coercer.to_set(subject).must_equal subject
+        end
+      end
+
       describe 'String' do
         let(:subject) { "omg" }
 
@@ -151,6 +172,17 @@ describe Lotus::Model::Adapters::Dynamodb::Coercer do
     end
 
     describe 'supported' do
+      describe 'AWS::DynamoDB::Binary' do
+        let(:subject) { "HUUUGE" }
+
+        it 'coerces' do
+          @coercer.to_aws_dynamodb_binary(subject).class.must_equal \
+            AWS::DynamoDB::Binary
+          @coercer.to_aws_dynamodb_binary(subject).must_equal \
+            AWS::DynamoDB::Binary.new(subject)
+        end
+      end
+
       describe 'Array' do
         let(:subject) { MultiJson.dump(["omg"]) }
 
@@ -202,14 +234,6 @@ describe Lotus::Model::Adapters::Dynamodb::Coercer do
         it 'coerces' do
           @coercer.to_time(subject.to_f).class.must_equal Time
           @coercer.to_time(subject.to_f).must_equal subject
-        end
-      end
-    end
-
-    describe 'unsupported' do
-      describe 'Set' do
-        it 'raises an error' do
-          ->{ @coercer.to_set(nil) }.must_raise NotImplementedError
         end
       end
     end
