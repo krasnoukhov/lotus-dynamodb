@@ -134,6 +134,10 @@ module Lotus
             self
           end
 
+          alias_method :eq, :where
+          alias_method :in, :where
+          alias_method :between, :where
+
           # Sets DynamoDB ConditionalOperator to `OR`. This works query-wide
           # so this method has no arguments.
           #
@@ -167,7 +171,7 @@ module Lotus
           #        .exclude(company: 'enterprise')
           def exclude(condition)
             key = key_for_condition(condition)
-            serialized = serialize_condition(condition, true)
+            serialized = serialize_condition(condition, negate: true)
 
             if serialized
               @options[key] ||= {}
@@ -178,6 +182,87 @@ module Lotus
           end
 
           alias_method :not, :exclude
+          alias_method :ne, :exclude
+
+          # Perform comparison operation.
+          #
+          # @return self
+          #
+          # @since 0.1.0
+          def comparison(condition, operator)
+            key = key_for_condition(condition)
+            serialized = serialize_condition(condition, operator: operator)
+
+            if serialized
+              @options[key] ||= {}
+              @options[key].merge!(serialized)
+            end
+
+            self
+          end
+
+          # Perform LE comparison.
+          #
+          # @return self
+          #
+          # @since 0.1.0
+          def le(condition); comparison(condition, 'LE'); end
+
+          # Perform LT comparison.
+          #
+          # @return self
+          #
+          # @since 0.1.0
+          def lt(condition); comparison(condition, 'LT'); end
+
+          # Perform GE comparison.
+          #
+          # @return self
+          #
+          # @since 0.1.0
+          def ge(condition); comparison(condition, 'GE'); end
+
+          # Perform GT comparison.
+          #
+          # @return self
+          #
+          # @since 0.1.0
+          def gt(condition); comparison(condition, 'GT'); end
+
+          # Perform CONTAINS comparison.
+          #
+          # @return self
+          #
+          # @since 0.1.0
+          def contains(condition); comparison(condition, 'CONTAINS'); end
+
+          # Perform NOT_CONTAINS comparison.
+          #
+          # @return self
+          #
+          # @since 0.1.0
+          def not_contains(condition); comparison(condition, 'NOT_CONTAINS'); end
+
+          # Perform BEGINS_WITH comparison.
+          #
+          # @return self
+          #
+          # @since 0.1.0
+          def begins_with(condition); comparison(condition, 'BEGINS_WITH'); end
+
+          # Perform NOT_NULL comparison.
+          #
+          # @return self
+          #
+          # @since 0.1.0
+          def not_null(column); comparison({ column => '' }, 'NOT_NULL'); end
+
+          # Perform NULL comparison.
+          #
+          # @return self
+          #
+          # @since 0.1.0
+          def null(column); comparison({ column => '' }, 'NULL'); end
 
           # Select only the specified columns.
           #
@@ -420,7 +505,7 @@ module Lotus
           #
           # @api private
           # @since 0.1.0
-          def serialize_condition(condition, negate = false)
+          def serialize_condition(condition, operator: nil, negate: false)
             column, value = condition.keys.first, condition.values.first
 
             operator ||= case
@@ -442,14 +527,19 @@ module Lotus
               [value].flatten
             end
 
-            {
+            serialized = {
               column.to_s => {
-                attribute_value_list: values.map do |v|
-                  @dataset.format_attribute(column, v)
-                end,
                 comparison_operator: operator,
               },
             }
+
+            if !["NULL", "NOT_NULL"].include?(operator)
+              serialized[column.to_s][:attribute_value_list] = values.map do |v|
+                @dataset.format_attribute(column, v)
+              end
+            end
+
+            serialized
           end
 
           # Apply all the options and return a filtered collection.

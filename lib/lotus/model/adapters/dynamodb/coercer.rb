@@ -18,18 +18,11 @@ module Lotus
           # @api private
           # @since 0.1.0
           def from_aws_dynamodb_binary(value)
-            # aws-sdk does it already
-            value
-          end
-
-          # Converts value from DynamoDB record value to given type.
-          #
-          # @api private
-          # @since 0.1.0
-          def to_aws_dynamodb_binary(value)
             return value if value.nil? || value.is_a?(AWS::DynamoDB::Binary)
             AWS::DynamoDB::Binary.new(value)
           end
+
+          alias_method :to_aws_dynamodb_binary, :from_aws_dynamodb_binary
 
           # Converts value from given type to DynamoDB record value.
           #

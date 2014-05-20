@@ -271,6 +271,13 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
         created_at: Time.new,
       )
     end
+    let(:purchase5) do
+      TestPurchase.new(
+        region: 'europe',
+        subtotal: 1.0,
+        created_at: Time.new,
+      )
+    end
     let(:purchases) { [purchase1, purchase2, purchase3, purchase4] }
 
     describe 'types' do
@@ -370,6 +377,34 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
             result = @adapter.query(collection, &query).all
             result.must_equal [purchase2]
           end
+
+          it 'can use "eq" alias' do
+            query = Proc.new {
+              eq(region: 'europe')
+            }
+
+            @adapter.query(collection, &query).count.must_equal 2
+          end
+
+          it 'can use "in" alias' do
+            @adapter.create(collection, purchase5)
+
+            query = Proc.new {
+              where(region: 'europe').in(subtotal: [10.0, 1.0])
+            }
+
+            @adapter.query(collection, &query).count.must_equal 2
+          end
+
+          it 'can use "between" alias' do
+            @adapter.create(collection, purchase5)
+
+            query = Proc.new {
+              where(region: 'europe').between(subtotal: 0.0..11.0)
+            }
+
+            @adapter.query(collection, &query).count.must_equal 2
+          end
         end
       end
     end
@@ -445,6 +480,113 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
             ->{ @adapter.query(collection, &query).all }.must_raise \
               NotImplementedError
           end
+
+          it 'can use "ne" alias' do
+            query = Proc.new {
+              where(region: 'europe').ne(subtotal: 1.0)
+            }
+
+            @adapter.query(collection, &query).count.must_equal 2
+          end
+        end
+      end
+    end
+
+    describe 'comparison' do
+      describe 'with an empty collection' do
+        it 'returns an empty result set' do
+          result = @adapter.query(collection) do
+            le(subtotal: 10.0)
+          end.all
+
+          result.must_be_empty
+        end
+      end
+
+      describe 'with a filled collection' do
+        before do
+          purchases.each do |purchase|
+            @adapter.create(collection, purchase)
+          end
+        end
+
+        it 'can use "le" method' do
+          query = Proc.new {
+            where(region: 'europe').le(subtotal: 15.0)
+          }
+
+          @adapter.query(collection, &query).count.must_equal 2
+        end
+
+        it 'can use "lt" method' do
+          query = Proc.new {
+            where(region: 'europe').lt(subtotal: 15.0)
+          }
+
+          @adapter.query(collection, &query).count.must_equal 1
+        end
+
+        it 'can use "ge" method' do
+          query = Proc.new {
+            where(region: 'europe').ge(subtotal: 10.0)
+          }
+
+          @adapter.query(collection, &query).count.must_equal 2
+        end
+
+        it 'can use "gt" method' do
+          query = Proc.new {
+            where(region: 'europe').gt(subtotal: 10.0)
+          }
+
+          @adapter.query(collection, &query).count.must_equal 1
+        end
+
+        it 'can use "contains" method' do
+          query = Proc.new {
+            where(region: 'europe').contains(item_ids: 2)
+          }
+
+          @adapter.query(collection, &query).count.must_equal 1
+        end
+
+        it 'can use "not_contains" method' do
+          skip_for_fake_dynamo
+          query = Proc.new {
+            where(region: 'europe').not_contains(item_ids: '2')
+          }
+
+          @adapter.query(collection, &query).count.must_equal 1
+        end
+
+        it 'can use "begins_with" method' do
+          query = Proc.new {
+            where(region: 'asia').begins_with(content: "CON")
+          }
+
+          @adapter.query(collection, &query).count.must_equal 1
+        end
+
+        it 'can use "not_null" method' do
+          skip_for_fake_dynamo
+          @adapter.create(collection, purchase5)
+
+          query = Proc.new {
+            where(region: 'europe').not_null(:content)
+          }
+
+          @adapter.query(collection, &query).count.must_equal 2
+        end
+
+        it 'can use "null" method' do
+          skip_for_fake_dynamo
+          @adapter.create(collection, purchase5)
+
+          query = Proc.new {
+            where(region: 'europe').null(:content)
+          }
+
+          @adapter.query(collection, &query).count.must_equal 1
         end
       end
     end
