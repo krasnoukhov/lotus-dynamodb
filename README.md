@@ -149,14 +149,15 @@ end
 ##### Mapper
 
 ```
-mapper = Lotus::Model::Mapper.new do
+coercer = Lotus::Model::Adapters::Dynamodb::Coercer
+mapper = Lotus::Model::Mapper.new(coercer) do
   collection :purchases do
     entity Purchase
 
     attribute :id,         String, as: :uuid
     attribute :region,     String
     attribute :subtotal,   Float
-    attribute :created_at, Float
+    attribute :created_at, Time
 
     identity :uuid
   end
@@ -186,7 +187,7 @@ purchases = [
   { region: "asia",   subtotal: 100.0 },
 ].map do |purchase|
   PurchaseRepository.create(
-    Purchase.new(purchase.merge(created_at: Time.new.to_f))
+    Purchase.new(purchase.merge(created_at: Time.new))
   )
 end
 ```
