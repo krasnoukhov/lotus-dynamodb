@@ -19,6 +19,11 @@ It is built on top of ```AWS::DynamoDB::Client```, which is part of ```aws-sdk``
 [![Inline docs](http://inch-pages.github.io/github/krasnoukhov/lotus-dynamodb.svg)](http://inch-pages.github.io/github/krasnoukhov/lotus-dynamodb)
 [![Dependencies](https://gemnasium.com/krasnoukhov/lotus-dynamodb.svg)](https://gemnasium.com/krasnoukhov/lotus-dynamodb)
 
+## Links
+
+* API Doc: [http://rdoc.info/github/krasnoukhov/lotus-dynamodb](http://rdoc.info/github/krasnoukhov/lotus-dynamodb)
+* Bugs/Issues: [https://github.com/krasnoukhov/lotus-dynamodb/issues](https://github.com/krasnoukhov/lotus-dynamodb/issues)
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -35,7 +40,7 @@ Or install it yourself as:
 
 ## Usage
 
-Please refer to [Lotus::Model](https://github.com/lotus/model#usage) docs for details related to Entities, Repositories, Data Mapper and Adapter things.
+Please refer to [Lotus::Model](https://github.com/lotus/model#usage) docs for details related to Entity, Repository, Data Mapper and Adapter things.
 
 ### Data types
 
@@ -55,160 +60,48 @@ List of Ruby types which are supported:
 * String – ```S```
 * Time – ```N``` (Float, seconds since Epoch)
 
-#### Example
+### Repository methods
 
-##### Table
+See [complete list](https://github.com/lotus/model#repositories) of Repository methods provided by ```Lotus::Model```.
 
-Say, we have a ```purchases``` DynamoDB table:
+Following methods are not supported since it's impossible with DynamoDB:
 
-```
-DB = AWS::DynamoDB::Client.new(api_version: Lotus::Dynamodb::API_VERSION)
-DB.create_table(
-  table_name: "purchases",
+* first
+* last
 
-  # List of all attributes which are used as table and indexes keys
-  attribute_definitions: [
-    { attribute_name: "region",       attribute_type: "S" },
-    { attribute_name: "created_at",   attribute_type: "N" },
-    { attribute_name: "subtotal",     attribute_type: "N" },
-    { attribute_name: "uuid",         attribute_type: "S" },
-  ],
+### Query methods
 
-  # Key schema of table
-  key_schema: [
-    { attribute_name: "region",       key_type: "HASH" },
-    { attribute_name: "created_at",   key_type: "RANGE" },
-  ],
+Generic methods supported by DynamoDB adapter:
 
-  # List of local indexes
-  local_secondary_indexes: [{
-    index_name: "by_subtotal",
-    key_schema: [
-      { attribute_name: "region",     key_type: "HASH" },
-      { attribute_name: "subtotal",   key_type: "RANGE" },
-    ],
-    projection: {
-      projection_type: "ALL",
-    },
-  }],
+* [all](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#all-instance_method)
+* [where](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#where-instance_method) (aliases: ```eq```, ```in```, ```between```)
+* [or](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#or-instance_method)
+* [exclude](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#exclude-instance_method) (aliases: ```not```, ```ne```)
+* [select](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#select-instance_method)
+* [order](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#order-instance_method) (alias: ```asc```)
+* [desc](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#desc-instance_method)
+* [limit](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#limit-instance_method)
+* [exists?](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#exist%3F-instance_method) (alias: ```exist?```)
+* [count](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#count-instance_method)
 
-  # List of global indexes
-  global_secondary_indexes: [{
-    index_name: "by_uuid",
-    key_schema: [
-      { attribute_name: "uuid",       key_type: "HASH" },
-    ],
-    projection: {
-      projection_type: "ALL",
-    },
-    provisioned_throughput: {
-      read_capacity_units: 10,
-      write_capacity_units: 10,
-    },
-  }],
+DynamoDB-specific methods:
 
-  # Capacity
-  provisioned_throughput: {
-    read_capacity_units: 10,
-    write_capacity_units: 10,
-  },
-)
-```
+* [query](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#query-instance_method) – ensure ```query``` operation is performed instead of ```scan```
+* [consistent](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#consistent-instance_method) – require consistent read for query
+* [index](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#index-instance_method) – perform query on specific index
+* [le](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#le-instance_method)
+* [lt](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#lt-instance_method)
+* [ge](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#ge-instance_method)
+* [gt](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#gt-instance_method)
+* [contains](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#contains-instance_method)
+* [not_contains](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#not_contains-instance_method)
+* [begins_with](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#begins_with-instance_method)
+* [null](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#null-instance_method)
+* [not_null](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#not_null-instance_method)
 
-This table stores purchases which are split by a ```region``` and sorted by creation time.
-Local secondary index allows sorting records by subtotal, and global index is used to retrieve specific records by ```uuid``` attribute, even if we don't know a ```region``` of these records.
+### Example
 
-##### Entity
-
-```
-class Purchase do
-  include Lotus::Entity
-  self.attributes = :id, :region, :subtotal, :item_ids, :content, :created_at
-end
-```
-
-##### Repository
-
-```
-class PurchaseRepository
-  include Lotus::Repository
-
-  class << self
-    def find_by_uuid(uuid)
-      query do
-        index("by_uuid").where(uuid: uuid).limit(1)
-      end.all.first
-    end
-
-    def top_by_subtotal(region, limit)
-      query do
-        index("by_subtotal").where(region: region).desc.limit(limit)
-      end.all
-    end
-  end
-end
-```
-
-##### Mapper
-
-```
-coercer = Lotus::Model::Adapters::Dynamodb::Coercer
-mapper = Lotus::Model::Mapper.new(coercer) do
-  collection :purchases do
-    entity Purchase
-
-    attribute :id,         String, as: :uuid
-    attribute :region,     String
-    attribute :subtotal,   Float
-    attribute :item_ids,   Set
-    attribute :content,    AWS::DynamoDB::Binary
-    attribute :created_at, Time
-
-    identity :uuid
-  end
-end.load!
-```
-
-##### Adapter :sparkles:
-
-```
-require 'lotus-dynamodb'
-
-AWS.config(
-  access_key_id: 'your key',
-  secret_access_key: 'your secret',
-)
-
-PurchaseRepository.adapter = Lotus::Model::Adapters::DynamodbAdapter.new(mapper)
-```
-
-##### Create some data
-
-```
-purchases = [
-  { region: "europe", subtotal: 15.0,  item_ids: [1, 2] },
-  { region: "europe", subtotal: 10.0,  content: "Huge Blob Here" },
-  { region: "usa",    subtotal: 5.0,   item_ids: ["strings", "as", "well"] },
-].map do |purchase|
-  PurchaseRepository.create(
-    Purchase.new(purchase.merge(created_at: Time.new))
-  )
-end
-```
-
-##### Queries! :fire:
-
-```
-puts "Find by UUID"
-puts PurchaseRepository.find_by_uuid(purchases.first.id).inspect
-puts
-
-puts "Top by subtotal"
-puts PurchaseRepository.top_by_subtotal("europe", 5).map(&:inspect)
-puts
-```
-
-This code is also in [examples/purchase.rb](examples/purchase.rb).
+Check out simple example in [examples/purchase.rb](examples/purchase.rb).
 
 ## Contributing
 

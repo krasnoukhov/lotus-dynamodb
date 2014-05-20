@@ -567,17 +567,6 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
           @adapter.query(collection, &query).count.must_equal 1
         end
 
-        it 'can use "not_null" method' do
-          skip_for_fake_dynamo
-          @adapter.create(collection, purchase5)
-
-          query = Proc.new {
-            where(region: 'europe').not_null(:content)
-          }
-
-          @adapter.query(collection, &query).count.must_equal 2
-        end
-
         it 'can use "null" method' do
           skip_for_fake_dynamo
           @adapter.create(collection, purchase5)
@@ -587,6 +576,17 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
           }
 
           @adapter.query(collection, &query).count.must_equal 1
+        end
+
+        it 'can use "not_null" method' do
+          skip_for_fake_dynamo
+          @adapter.create(collection, purchase5)
+
+          query = Proc.new {
+            where(region: 'europe').not_null(:content)
+          }
+
+          @adapter.query(collection, &query).count.must_equal 2
         end
       end
     end
@@ -775,12 +775,12 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
       end
     end
 
-    describe 'exist?' do
+    describe 'exists?' do
       describe 'with an empty collection' do
         it 'returns false' do
           result = @adapter.query(collection) do
             where(region: 'wow')
-          end.exist?
+          end.exists?
 
           result.must_equal false
         end
@@ -798,7 +798,7 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
             where(region: 'asia')
           }
 
-          result = @adapter.query(collection, &query).exist?
+          result = @adapter.query(collection, &query).exists?
           result.must_equal true
         end
 
@@ -807,8 +807,17 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
             where(region: 'wtf')
           }
 
-          result = @adapter.query(collection, &query).exist?
+          result = @adapter.query(collection, &query).exists?
           result.must_equal false
+        end
+
+        it 'can use "exist?" alias' do
+          query = Proc.new {
+            where(region: 'usa')
+          }
+
+          result = @adapter.query(collection, &query).exist?
+          result.must_equal true
         end
       end
     end

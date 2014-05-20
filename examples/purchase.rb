@@ -12,6 +12,16 @@ AWS.config(
   secret_access_key: '',
 )
 
+#
+# Say, we have a ```purchases``` DynamoDB table
+#
+# This table stores purchases which are split by a ```region``` and sorted by
+# creation time.
+# Local secondary index allows sorting records by subtotal, and global index is
+# used to retrieve specific records by ```uuid``` attribute, even if we don't
+# know a ```region``` of these records.
+#
+
 DB = AWS::DynamoDB::Client.new(api_version: Lotus::Dynamodb::API_VERSION)
 
 begin
@@ -70,13 +80,17 @@ rescue AWS::DynamoDB::Errors::ResourceNotFoundException
 end
 
 #
-# Define
+# Entity
 #
 
 class Purchase
   include Lotus::Entity
   self.attributes = :id, :region, :subtotal, :item_ids, :content, :created_at
 end
+
+#
+# Repository
+#
 
 class PurchaseRepository
   include Lotus::Repository
@@ -96,6 +110,10 @@ class PurchaseRepository
   end
 end
 
+#
+# Mapper
+#
+
 coercer = Lotus::Model::Adapters::Dynamodb::Coercer
 mapper = Lotus::Model::Mapper.new(coercer) do
   collection :purchases do
@@ -112,10 +130,14 @@ mapper = Lotus::Model::Mapper.new(coercer) do
   end
 end.load!
 
+#
+# Adapter
+#
+
 PurchaseRepository.adapter = Lotus::Model::Adapters::DynamodbAdapter.new(mapper)
 
 #
-# Create
+# Create some data
 #
 
 purchases = [
@@ -130,7 +152,7 @@ purchases = [
 end
 
 #
-# Query
+# Perform queries
 #
 
 puts "Find by UUID"

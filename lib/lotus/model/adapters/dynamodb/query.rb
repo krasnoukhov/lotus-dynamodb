@@ -184,23 +184,6 @@ module Lotus
           alias_method :not, :exclude
           alias_method :ne, :exclude
 
-          # Perform comparison operation.
-          #
-          # @return self
-          #
-          # @since 0.1.0
-          def comparison(condition, operator)
-            key = key_for_condition(condition)
-            serialized = serialize_condition(condition, operator: operator)
-
-            if serialized
-              @options[key] ||= {}
-              @options[key].merge!(serialized)
-            end
-
-            self
-          end
-
           # Perform LE comparison.
           #
           # @return self
@@ -250,6 +233,13 @@ module Lotus
           # @since 0.1.0
           def begins_with(condition); comparison(condition, 'BEGINS_WITH'); end
 
+          # Perform NULL comparison.
+          #
+          # @return self
+          #
+          # @since 0.1.0
+          def null(column); comparison({ column => '' }, 'NULL'); end
+
           # Perform NOT_NULL comparison.
           #
           # @return self
@@ -257,12 +247,23 @@ module Lotus
           # @since 0.1.0
           def not_null(column); comparison({ column => '' }, 'NOT_NULL'); end
 
-          # Perform NULL comparison.
+          # Perform comparison operation.
           #
           # @return self
           #
+          # @api private
           # @since 0.1.0
-          def null(column); comparison({ column => '' }, 'NULL'); end
+          def comparison(condition, operator)
+            key = key_for_condition(condition)
+            serialized = serialize_condition(condition, operator: operator)
+
+            if serialized
+              @options[key] ||= {}
+              @options[key].merge!(serialized)
+            end
+
+            self
+          end
 
           # Select only the specified columns.
           #
@@ -423,9 +424,11 @@ module Lotus
           # @example
           #
           #    query.where(author_id: 23).exists? # => true
-          def exist?
+          def exists?
             !count.zero?
           end
+
+          alias_method :exist?, :exists?
 
           # Returns a count of the records for the current conditions.
           #
@@ -473,8 +476,6 @@ module Lotus
             @options[:index_name] = name.to_s
             self
           end
-
-          # TODO: More DynamoDB-specific methods
 
           private
           # Return proper options key for a given condition.
