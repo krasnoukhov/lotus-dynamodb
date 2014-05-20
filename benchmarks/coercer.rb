@@ -10,7 +10,7 @@ require 'lotus/model'
 require 'lotus-dynamodb'
 
 GC.disable
-TIMES = ENV['TIMES'].to_i || 1_000_000
+TIMES = (ENV['TIMES'] || 1_000_000).to_i
 
 class Project
   include Lotus::Entity
