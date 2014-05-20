@@ -14,7 +14,8 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
       include Lotus::Entity
     end
 
-    @mapper = Lotus::Model::Mapper.new do
+    coercer = Lotus::Model::Adapters::Dynamodb::Coercer
+    @mapper = Lotus::Model::Mapper.new(coercer) do
       collection :test_users do
         entity TestUser
 
@@ -27,7 +28,7 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
         entity TestDevice
 
         attribute :id,         String, as: :uuid
-        attribute :created_at, Float
+        attribute :created_at, Time
 
         identity :uuid
       end
@@ -38,7 +39,7 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
         attribute :id,         String, as: :uuid
         attribute :region,     String
         attribute :subtotal,   Float
-        attribute :created_at, Float
+        attribute :created_at, Time
 
         identity :uuid
       end
@@ -71,7 +72,7 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
   describe 'multiple collections' do
     it 'create records' do
       user   = TestUser.new
-      device = TestDevice.new(created_at: Time.new.to_f)
+      device = TestDevice.new(created_at: Time.new)
 
       @adapter.clear(:test_users)
       @adapter.clear(:test_devices)
@@ -204,7 +205,7 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
     end
 
     describe 'complex key' do
-      let(:entity) { TestDevice.new(created_at: Time.new.to_f) }
+      let(:entity) { TestDevice.new(created_at: Time.new) }
       let(:collection) { :test_devices }
 
       it 'returns the record by id' do
@@ -236,28 +237,28 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
       TestPurchase.new(
         region: 'europe',
         subtotal: 15.0,
-        created_at: Time.new.to_f
+        created_at: Time.new
       )
     end
     let(:purchase2) do
       TestPurchase.new(
         region: 'europe',
         subtotal: 10.0,
-        created_at: Time.new.to_f
+        created_at: Time.new
       )
     end
     let(:purchase3) do
       TestPurchase.new(
         region: 'usa',
         subtotal: 5.0,
-        created_at: Time.new.to_f
+        created_at: Time.new
       )
     end
     let(:purchase4) do
       TestPurchase.new(
         region: 'asia',
         subtotal: 100.0,
-        created_at: Time.new.to_f
+        created_at: Time.new
       )
     end
     let(:purchases) { [purchase1, purchase2, purchase3, purchase4] }
@@ -302,8 +303,9 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
           end
 
           it 'can use multiple where conditions' do
+            created_at = purchase1.created_at
             query = Proc.new {
-              where(region: 'europe').where(subtotal: 15.0)
+              where(region: 'europe').where(created_at: created_at)
             }
 
             result = @adapter.query(collection, &query).all
@@ -410,7 +412,7 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
       describe 'with an empty collection' do
         it 'returns an empty result set' do
           result = @adapter.query(collection) do
-            where(subtotal: 10.0).or.where(id: "omg")
+            where(subtotal: 10.0).or.where(uuid: "omg")
           end.all
 
           result.must_be_empty
@@ -498,8 +500,8 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
 
     describe 'order' do
       let(:collection) { :test_devices }
-      let(:device1) { TestDevice.new(id: 'device', created_at: Time.new.to_f) }
-      let(:device2) { TestDevice.new(id: 'device', created_at: Time.new.to_f) }
+      let(:device1) { TestDevice.new(id: 'device', created_at: Time.new) }
+      let(:device2) { TestDevice.new(id: 'device', created_at: Time.new) }
       let(:devices) { [device1, device2] }
 
       describe 'asc' do
@@ -594,7 +596,7 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
       describe 'with an empty collection' do
         it 'returns false' do
           result = @adapter.query(collection) do
-            where(omg: 'wow')
+            where(region: 'wow')
           end.exist?
 
           result.must_equal false
@@ -619,7 +621,7 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
 
         it 'returns false when there are matched records' do
           query = Proc.new {
-            where(lol: 'wtf')
+            where(region: 'wtf')
           }
 
           result = @adapter.query(collection, &query).exist?

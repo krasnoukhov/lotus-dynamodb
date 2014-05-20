@@ -41,14 +41,16 @@ module Lotus
           # Initialize a collection.
           #
           # @param client [AWS::DynamoDB::Client] DynamoDB client
+          # @param coercer [Lotus::Model::Adapters::Dynamodb::Coercer]
           # @param name [Symbol] the name of the collection (eg. `:users`)
           # @param identity [Symbol] the primary key of the collection
           #   (eg. `:id`).
           #
           # @api private
           # @since 0.1.0
-          def initialize(client, name, identity)
-            @client, @name, @identity = client, name.to_s, identity
+          def initialize(client, coercer, name, identity)
+            @client, @coercer = client, coercer
+            @name, @identity = name.to_s, identity
             @key_schema = {}
           end
 
@@ -115,7 +117,7 @@ module Lotus
           # @see Lotus::Model::Adapters::Dynamodb::Command#get
           # @see http://docs.aws.amazon.com/AWSRubySDK/latest/AWS/DynamoDB/Client/V20120810.html#get_item-instance_method
           #
-          # @return [Hash] the serialized entity
+          # @return [Hash] the serialized record
           #
           # @api private
           # @since 0.1.0
@@ -216,9 +218,15 @@ module Lotus
             key_schema(index).has_key?(column)
           end
 
-          # Serialize given entity to have proper attributes for 'item' query.
+          # TODO: Doc
+          def format_attribute(column, value)
+            value = @coercer.public_send(:"serialize_#{ column }", value)
+            format_attribute_value(value)
+          end
+
+          # Serialize given record to have proper attributes for 'item' query.
           #
-          # @param entity [Hash] the serialized entity
+          # @param record [Hash] the serialized record
           #
           # @see AWS::DynamoDB::Types
           #
@@ -226,14 +234,14 @@ module Lotus
           #
           # @api private
           # @since 0.1.0
-          def serialize_item(entity)
-            Hash[entity.map { |k, v| [k.to_s, format_attribute_value(v)] }]
+          def serialize_item(record)
+            Hash[record.map { |k, v| [k.to_s, format_attribute_value(v)] }]
           end
 
-          # Serialize given entity or primary key to have proper attributes
+          # Serialize given record or primary key to have proper attributes
           # for 'key' query.
           #
-          # @param entity [Hash,Array] the serialized entity or primary key
+          # @param record [Hash,Array] the serialized record or primary key
           #
           # @see AWS::DynamoDB::Types
           #
@@ -241,16 +249,16 @@ module Lotus
           #
           # @api private
           # @since 0.1.0
-          def serialize_key(entity)
+          def serialize_key(record)
             Hash[key_schema.keys.each_with_index.map do |k, idx|
-              v = entity.is_a?(Hash) ? entity[k] : entity[idx]
-              [k.to_s, format_attribute_value(v)]
+              v = record.is_a?(Hash) ? record[k] : record[idx]
+              [k.to_s, format_attribute(k, v)]
             end]
           end
 
           # Serialize given entity to exclude key schema attributes.
           #
-          # @param entity [Hash] the serialized entity
+          # @param entity [Hash] the entity
           #
           # @see AWS::DynamoDB::Types
           #
@@ -289,12 +297,12 @@ module Lotus
           #
           # @see AWS::DynamoDB::Types
           #
-          # @return [Hash] the deserialized entity
+          # @return [Hash] the deserialized record
           #
           # @api private
           # @since 0.1.0
-          def deserialize_item(item)
-            Lotus::Utils::Hash.new(values_from_response_hash(item)).symbolize!
+          def deserialize_item(record)
+            Lotus::Utils::Hash.new(values_from_response_hash(record)).symbolize!
           end
         end
       end

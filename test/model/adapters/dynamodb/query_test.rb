@@ -29,6 +29,10 @@ describe Lotus::Model::Adapters::Dynamodb::Query do
         false
       end
 
+      def format_attribute(column, value)
+        value
+      end
+
       def to_s
         records.to_s
       end

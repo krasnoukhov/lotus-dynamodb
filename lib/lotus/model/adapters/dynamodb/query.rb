@@ -445,7 +445,7 @@ module Lotus
             {
               column.to_s => {
                 attribute_value_list: values.map do |v|
-                  @dataset.format_attribute_value(v)
+                  @dataset.format_attribute(column, v)
                 end,
                 comparison_operator: operator,
               },
