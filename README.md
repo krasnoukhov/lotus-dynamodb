@@ -6,9 +6,9 @@
 > -- <cite>[jodosha](https://github.com/jodosha), [Lotus::Model](https://github.com/lotus/model)</cite>
 
 This adapter implements persistence layer for a [Amazon DynamoDB](https://aws.amazon.com/dynamodb/),
-and it pretends to be a _really_ sane solution to take DynamoDB advantages with Ruby.
+and it pretends to be a _really_ sane solution to fully experience DynamoDB advantages with Ruby.
 
-It is built on top of ```AWS::DynamoDB::Client```, which is part of ```aws-sdk``` gem and implements latest version of DynamoDB protocol.
+It is built using ```AWS::DynamoDB::Client```, which is a part of ```aws-sdk``` gem and implements latest version of DynamoDB protocol.
 
 ## Status
 
@@ -40,13 +40,13 @@ Or install it yourself as:
 
 ## Usage
 
-Please refer to [Lotus::Model](https://github.com/lotus/model#usage) docs for details related to Entity, Repository, Data Mapper and Adapter things.
+Please refer to [Lotus::Model](https://github.com/lotus/model#usage) docs for any details related to Entity, Repository, Data Mapper and Adapter.
 
 ### Data types
 
 This adapter supports coercion to all DynamoDB types, including blobs and sets.
 
-List of Ruby types which are supported:
+List of Ruby types that are supported:
 
 * AWS::DynamoDB::Binary – ```B```
 * Array – ```S``` (via MultiJson)
@@ -64,7 +64,7 @@ List of Ruby types which are supported:
 
 See [complete list](https://github.com/lotus/model#repositories) of Repository methods provided by ```Lotus::Model```.
 
-Following methods are not supported since it's impossible with DynamoDB:
+Following methods are not supported since it's incompatible with DynamoDB:
 
 * first
 * last
@@ -101,7 +101,7 @@ DynamoDB-specific methods:
 
 ### Example
 
-Check out simple example in [examples/purchase.rb](examples/purchase.rb).
+Check out the simple example in [examples/purchase.rb](examples/purchase.rb).
 
 ## Contributing
 
