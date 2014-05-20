@@ -37,6 +37,23 @@ Or install it yourself as:
 
 Please refer to [Lotus::Model](https://github.com/lotus/model#usage) docs for details related to Entities, Repositories, Data Mapper and Adapter things.
 
+### Data types
+
+This adapter supports coercion to a following DynamoDB types: ```S```, ```N```.
+At the moment, Blob type and all Set types are not supported.
+
+List of Ruby types which are supported:
+
+* Array – ```S``` (via MultiJson)
+* Boolean – ```N``` (1 for true and 0 for false)
+* Date – ```N``` (Integer, seconds since Epoch)
+* DateTime – ```N``` (Float, seconds since Epoch)
+* Float – ```N```
+* Hash – ```S``` (via MultiJson)
+* Integer – ```N```
+* String – ```S```
+* Time – ```N``` (Float, seconds since Epoch)
+
 #### Example
 
 ##### Table
