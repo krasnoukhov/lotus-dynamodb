@@ -9,5 +9,8 @@ end
 gem 'simplecov', require: false
 gem 'coveralls', require: false
 
+# Benchmarking
+gem 'benchmark-ips', '~> 1.2'
+
 # Fixes are not merged yet
 gem 'fake_dynamo', github: 'krasnoukhov/fake_dynamo'
