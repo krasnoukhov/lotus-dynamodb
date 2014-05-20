@@ -21,7 +21,7 @@ It is built using ```AWS::DynamoDB::Client```, which is a part of ```aws-sdk``` 
 
 ## Links
 
-* API Doc: [http://rdoc.info/github/krasnoukhov/lotus-dynamodb](http://rdoc.info/github/krasnoukhov/lotus-dynamodb)
+* API Doc: [http://rdoc.info/gems/lotus-dynamodb](http://rdoc.info/gems/lotus-dynamodb)
 * Bugs/Issues: [https://github.com/krasnoukhov/lotus-dynamodb/issues](https://github.com/krasnoukhov/lotus-dynamodb/issues)
 
 ## Installation
@@ -73,31 +73,31 @@ Following methods are not supported since it's incompatible with DynamoDB:
 
 Generic methods supported by DynamoDB adapter:
 
-* [all](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#all-instance_method)
-* [where](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#where-instance_method) (aliases: ```eq```, ```in```, ```between```)
-* [or](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#or-instance_method)
-* [exclude](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#exclude-instance_method) (aliases: ```not```, ```ne```)
-* [select](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#select-instance_method)
-* [order](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#order-instance_method) (alias: ```asc```)
-* [desc](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#desc-instance_method)
-* [limit](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#limit-instance_method)
-* [exists?](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#exist%3F-instance_method) (alias: ```exist?```)
-* [count](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#count-instance_method)
+* [all](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#all-instance_method)
+* [where](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#where-instance_method) (aliases: ```eq```, ```in```, ```between```)
+* [or](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#or-instance_method)
+* [exclude](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#exclude-instance_method) (aliases: ```not```, ```ne```)
+* [select](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#select-instance_method)
+* [order](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#order-instance_method) (alias: ```asc```)
+* [desc](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#desc-instance_method)
+* [limit](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#limit-instance_method)
+* [exists?](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#exist%3F-instance_method) (alias: ```exist?```)
+* [count](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#count-instance_method)
 
 DynamoDB-specific methods:
 
-* [query](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#query-instance_method) – ensure ```query``` operation is performed instead of ```scan```
-* [consistent](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#consistent-instance_method) – require consistent read for query
-* [index](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#index-instance_method) – perform query on specific index
-* [le](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#le-instance_method)
-* [lt](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#lt-instance_method)
-* [ge](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#ge-instance_method)
-* [gt](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#gt-instance_method)
-* [contains](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#contains-instance_method)
-* [not_contains](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#not_contains-instance_method)
-* [begins_with](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#begins_with-instance_method)
-* [null](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#null-instance_method)
-* [not_null](http://rdoc.info/github/krasnoukhov/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#not_null-instance_method)
+* [query](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#query-instance_method) – ensure ```query``` operation is performed instead of ```scan```
+* [consistent](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#consistent-instance_method) – require consistent read for query
+* [index](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#index-instance_method) – perform query on specific index
+* [le](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#le-instance_method)
+* [lt](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#lt-instance_method)
+* [ge](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#ge-instance_method)
+* [gt](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#gt-instance_method)
+* [contains](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#contains-instance_method)
+* [not_contains](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#not_contains-instance_method)
+* [begins_with](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#begins_with-instance_method)
+* [null](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#null-instance_method)
+* [not_null](http://rdoc.info/gems/lotus-dynamodb/Lotus/Model/Adapters/Dynamodb/Query#not_null-instance_method)
 
 ### Example
 
