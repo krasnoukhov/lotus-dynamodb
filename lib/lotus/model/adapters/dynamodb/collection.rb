@@ -18,10 +18,11 @@ module Lotus
           # @api private
           # @since 0.1.0
           class Response
-            attr_accessor :count, :entities
+            attr_accessor :count, :entities, :last_evaluated_key
 
-            def initialize(count, entities = nil)
-              @count, @entities = count, entities
+            def initialize
+              @count = 0
+              @entities = []
             end
           end
 
@@ -136,6 +137,7 @@ module Lotus
           # Performs DynamoDB query operation.
           #
           # @param options [Hash] AWS::DynamoDB::Client options
+          # @param previous_response [Response] deserialized response from a previous operation
           #
           # @see http://docs.aws.amazon.com/AWSRubySDK/latest/AWS/DynamoDB/Client/V20120810.html#query-instance_method
           #
@@ -143,14 +145,15 @@ module Lotus
           #
           # @api private
           # @since 0.1.0
-          def query(options = {})
+          def query(options = {}, previous_response = nil)
             response = @client.query(options.merge(table_name: name))
-            deserialize_response(response)
+            deserialize_response(response, previous_response)
           end
 
           # Performs DynamoDB scan operation.
           #
           # @param options [Hash] AWS::DynamoDB::Client options
+          # @param previous_response [Response] deserialized response from a previous operation
           #
           # @see http://docs.aws.amazon.com/AWSRubySDK/latest/AWS/DynamoDB/Client/V20120810.html#scan-instance_method
           #
@@ -158,9 +161,9 @@ module Lotus
           #
           # @api private
           # @since 0.1.0
-          def scan(options = {})
+          def scan(options = {}, previous_response = nil)
             response = @client.scan(options.merge(table_name: name))
-            deserialize_response(response)
+            deserialize_response(response, previous_response)
           end
 
           # Fetches DynamoDB table schema.
@@ -286,19 +289,22 @@ module Lotus
           # Deserialize DynamoDB scan/query response.
           #
           # @param response [Hash] the serialized response
+          # @param previous_response [Response] deserialized response from a previous operation
           #
-          # @return [Hash] the deserialized response
+          # @return [Response] the deserialized response
           #
           # @api private
           # @since 0.1.0
-          def deserialize_response(response)
-            result = Response.new(response[:count])
+          def deserialize_response(response, previous_response = nil)
+            current_response = previous_response || Response.new
+            current_response.count += response[:count]
 
-            result.entities = response[:member].map do |item|
+            current_response.entities += response[:member].map do |item|
               deserialize_item(item)
             end if response[:member]
 
-            result
+            current_response.last_evaluated_key = response[:last_evaluated_key]
+            current_response
           end
 
           # Deserialize item from DynamoDB response.

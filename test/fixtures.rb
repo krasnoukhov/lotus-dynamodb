@@ -10,8 +10,8 @@ begin
       { attribute_name: "id", key_type: "HASH" },
     ],
     provisioned_throughput: {
-      read_capacity_units: 10,
-      write_capacity_units: 10,
+      read_capacity_units: 50,
+      write_capacity_units: 50,
     },
   )
 
@@ -26,8 +26,8 @@ begin
       { attribute_name: "created_at", key_type: "RANGE" },
     ],
     provisioned_throughput: {
-      read_capacity_units: 10,
-      write_capacity_units: 10,
+      read_capacity_units: 50,
+      write_capacity_units: 50,
     },
   )
 
@@ -62,13 +62,13 @@ begin
         projection_type: "ALL",
       },
       provisioned_throughput: {
-        read_capacity_units: 10,
-        write_capacity_units: 10,
+        read_capacity_units: 50,
+        write_capacity_units: 50,
       },
     }],
     provisioned_throughput: {
-      read_capacity_units: 10,
-      write_capacity_units: 10,
+      read_capacity_units: 50,
+      write_capacity_units: 50,
     },
   )
 rescue AWS::DynamoDB::Errors::ResourceInUseException

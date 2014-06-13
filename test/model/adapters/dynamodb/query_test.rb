@@ -2,7 +2,7 @@ require 'test_helper'
 
 describe Lotus::Model::Adapters::Dynamodb::Query do
   before do
-    MockResponse = Struct.new(:entities)
+    MockResponse = Struct.new(:entities, :last_evaluated_key)
 
     class MockDataset
       include AWS::DynamoDB::Types
@@ -15,11 +15,11 @@ describe Lotus::Model::Adapters::Dynamodb::Query do
         @records = MockResponse.new(entities)
       end
 
-      def query(options = {})
+      def query(options = {}, previous_response = nil)
         records
       end
 
-      def scan(options = {})
+      def scan(options = {}, previous_response = nil)
         records
       end
 

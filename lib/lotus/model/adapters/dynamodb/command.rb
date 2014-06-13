@@ -84,19 +84,6 @@ module Lotus
             ).first
           end
 
-          # Deletes all the records from the table.
-          #
-          # @see Lotus::Model::Adapters::Dynamodb::Collection#scan
-          # @see Lotus::Model::Mapping::Collection
-          #
-          # @api private
-          # @since 0.1.0
-          def clear
-            @collection.deserialize(@dataset.scan.entities).each do |entity|
-              delete(entity)
-            end
-          end
-
           private
           # Serialize the given entity before to persist in the database.
           #

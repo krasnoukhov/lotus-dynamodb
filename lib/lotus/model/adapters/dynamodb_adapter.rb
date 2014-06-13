@@ -88,7 +88,8 @@ module Lotus
         # @api private
         # @since 0.1.0
         def clear(collection)
-          command(collection).clear
+          blk = Proc.new {}
+          query(collection, blk).each { |entity| delete(collection, entity) }
         end
 
         # Returns an unique record from the given collection, with the given

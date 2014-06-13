@@ -41,7 +41,7 @@ module Lotus
           include Enumerable
           extend  Forwardable
 
-          def_delegators :all, :each, :to_s, :empty?
+          def_delegators :all, :to_s, :empty?
 
           # @attr_reader operation [Symbol] operation to perform
           #
@@ -81,7 +81,36 @@ module Lotus
           #
           # @since 0.1.0
           def all
-            @collection.deserialize(run.entities)
+            response = run
+            while !@options[:limit] && response.last_evaluated_key
+              @options[:exclusive_start_key] = response.last_evaluated_key
+              response = run(response)
+            end
+
+            @collection.deserialize(response.entities)
+          end
+
+          # Iterates over fetched records.
+          #
+          # @return [Integer] total count of records
+          #
+          # @since 0.1.1
+          def each
+            response = run
+            entities = @collection.deserialize(response.entities)
+            entities.each { |x| yield(x) }
+
+            while !@options[:limit] && response.last_evaluated_key
+              response.entities = []
+
+              @options[:exclusive_start_key] = response.last_evaluated_key
+              response = run(response)
+
+              entities = @collection.deserialize(response.entities)
+              entities.each { |x| yield(x) }
+            end
+
+            response.count
           end
 
           # Set operation to be query instead of scan.
@@ -443,7 +472,14 @@ module Lotus
             @options[:select] = "COUNT"
             @options.delete(:attributes_to_get)
 
-            run.count
+            response = run
+
+            while !@options[:limit] && response.last_evaluated_key
+              @options[:exclusive_start_key] = response.last_evaluated_key
+              response = run(response)
+            end
+
+            response.count
           end
 
           # This method is not implemented.
@@ -545,12 +581,14 @@ module Lotus
 
           # Apply all the options and return a filtered collection.
           #
+          # @param previous_response [Response] deserialized response from a previous operation
+          #
           # @return [Array]
           #
           # @api private
           # @since 0.1.0
-          def run
-            @dataset.public_send(operation, @options)
+          def run(previous_response = nil)
+            @dataset.public_send(operation, @options, previous_response)
           end
         end
       end

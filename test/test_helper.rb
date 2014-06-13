@@ -22,6 +22,8 @@ require 'lotus-dynamodb'
 
 if ENV['AWS']
   AWS.config(
+    # logger: Logger.new($stdout),
+    # log_level: :debug,
     access_key_id: ENV['AWS_KEY'],
     secret_access_key: ENV['AWS_SECRET'],
   )

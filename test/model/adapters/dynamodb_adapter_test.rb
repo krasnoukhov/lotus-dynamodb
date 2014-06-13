@@ -59,18 +59,6 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
 
   let(:collection) { :test_users }
 
-  describe '#first' do
-    it 'raises an error' do
-      -> { @adapter.first(collection) }.must_raise NotImplementedError
-    end
-  end
-
-  describe '#last' do
-    it 'raises an error' do
-      -> { @adapter.last(collection) }.must_raise NotImplementedError
-    end
-  end
-
   describe 'multiple collections' do
     it 'create records' do
       user   = TestUser.new
@@ -84,6 +72,18 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
 
       @adapter.all(:test_users).must_equal   [user]
       @adapter.all(:test_devices).must_equal [device]
+    end
+  end
+
+  describe '#first' do
+    it 'raises an error' do
+      -> { @adapter.first(collection) }.must_raise NotImplementedError
+    end
+  end
+
+  describe '#last' do
+    it 'raises an error' do
+      -> { @adapter.last(collection) }.must_raise NotImplementedError
     end
   end
 
@@ -177,6 +177,64 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
 
       it 'returns all of them' do
         @adapter.all(collection).must_equal [entity]
+      end
+    end
+
+    describe 'when large records set is persisted' do
+      before do
+        entities.each do |entity|
+          @adapter.create(collection, entity)
+        end
+      end
+
+      let(:entities) { 25.times.map { TestUser.new(name: 'A'*50_000) } }
+
+      it 'returns all of them' do
+        @adapter.all(collection).count.must_equal entities.count
+      end
+    end
+  end
+
+  describe '#each' do
+    describe 'when no records are persisted' do
+      it 'returns an empty collection' do
+        query = Proc.new {}
+        counter = 0
+        @adapter.query(collection, &query).each { |x| counter += 1 }
+        counter.must_equal 0
+      end
+    end
+
+    describe 'when some records are persisted' do
+      before do
+        @adapter.create(collection, entity)
+      end
+
+      let(:entity) { TestUser.new }
+
+      it 'returns all of them' do
+        query = Proc.new {}
+        counter = 0
+        @adapter.query(collection, &query).each { |x| counter += 1 }
+        counter.must_equal 1
+      end
+    end
+
+    describe 'when large records set is persisted' do
+      before do
+        entities.each do |entity|
+          @adapter.create(collection, entity)
+        end
+      end
+
+      let(:entities) { 25.times.map { TestUser.new(name: 'A'*50_000) } }
+
+      it 'returns all of them' do
+        query = Proc.new {}
+        counter = 0
+        count = @adapter.query(collection, &query).each { |x| counter += 1 }
+        counter.must_equal entities.count
+        count.must_equal entities.count
       end
     end
   end
@@ -864,6 +922,33 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
 
           result = @adapter.query(collection, &query).count
           result.must_equal 2
+        end
+      end
+
+      describe 'with large records set' do
+        before do
+          purchases.each do |entity|
+            @adapter.create(collection, entity)
+          end
+        end
+
+        let(:purchases) do
+          25.times.map do |i|
+            TestPurchase.new(
+              region: 'europe',
+              content: ('A'..'Z').to_a[i]*50_000,
+              created_at: Time.new,
+            )
+          end
+        end
+
+        it 'returns all of them' do
+          query = Proc.new {
+            where(region: 'europe')
+          }
+
+          result = @adapter.query(collection, &query).count
+          result.must_equal purchases.count
         end
       end
     end
