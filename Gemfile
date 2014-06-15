@@ -14,3 +14,7 @@ gem 'benchmark-ips', '~> 1.2'
 
 # Fixes are not merged yet
 gem 'fake_dynamo', github: 'krasnoukhov/fake_dynamo'
+
+# Upstream
+gem 'lotus-utils', github: 'lotus/utils'
+gem 'lotus-model', github: 'lotus/model'

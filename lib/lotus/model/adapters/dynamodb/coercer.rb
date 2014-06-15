@@ -1,4 +1,4 @@
-require 'lotus/utils/kernel'
+require 'lotus/model/mapping/coercions'
 require 'multi_json'
 
 module Lotus
@@ -141,7 +141,7 @@ module Lotus
             code = @collection.attributes.map do |_,(klass,mapped)|
               %{
               def deserialize_#{ mapped }(value)
-                #{kernel_wrap(klass) { "from_#{_method_name(klass)}(value)" }}
+                #{coercions_wrap(klass) { "from_#{_method_name(klass)}(value)" }}
               end
 
               def serialize_#{ mapped }(value)
@@ -161,7 +161,7 @@ module Lotus
 
               def from_record(record)
                 #{ @collection.entity }.new(
-                  Hash[*[#{ @collection.attributes.map{|name,(klass,mapped)| ":#{name},#{kernel_wrap(klass) { "to_#{_method_name(klass)}(record[:#{mapped}])" }}"}.join(',') }]]
+                  Hash[*[#{ @collection.attributes.map{|name,(klass,mapped)| ":#{name},#{coercions_wrap(klass) { "to_#{_method_name(klass)}(record[:#{mapped}])" }}"}.join(',') }]]
                 )
               end
 
@@ -169,15 +169,15 @@ module Lotus
             }
           end
 
-          # Wraps string in Lotus::Utils::Kernel call if needed.
+          # Wraps string in Lotus::Model::Mapping::Coercions call if needed.
           #
           # @api private
           # @since 0.1.0
-          def kernel_wrap(klass)
+          def coercions_wrap(klass)
             if klass.to_s.include?("::")
               yield
             else
-              "Lotus::Utils::Kernel.#{klass}(#{yield})"
+              "Lotus::Model::Mapping::Coercions.#{klass}(#{yield})"
             end
           end
 
