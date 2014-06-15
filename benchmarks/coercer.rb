@@ -18,34 +18,27 @@ class Project
     :attr5, :attr6, :attr7, :attr8, :attr9
 end
 
-default_collection = Lotus::Model::Mapping::Collection.new(:projects, Lotus::Model::Mapping::Coercer) do
-  entity Project
+spec = ->(c) {
+  c.entity Project
 
-  attribute :id,    Integer
-  attribute :attr1, String
-  attribute :attr2, String
-  attribute :attr3, String
-  attribute :attr4, String
-  attribute :attr5, String
-  attribute :attr6, String
-  attribute :attr7, String
-  attribute :attr8, String
-  attribute :attr9, String
+  c.attribute :id,    Integer
+  c.attribute :attr1, String
+  c.attribute :attr2, String
+  c.attribute :attr3, String
+  c.attribute :attr4, String
+  c.attribute :attr5, String
+  c.attribute :attr6, String
+  c.attribute :attr7, String
+  c.attribute :attr8, String
+  c.attribute :attr9, String
+}
+
+default_collection = Lotus::Model::Mapping::Collection.new(:projects, Lotus::Model::Mapping::Coercer) do
+  spec.call(self)
 end
 
 dynamodb_collection = Lotus::Model::Mapping::Collection.new(:projects, Lotus::Model::Adapters::Dynamodb::Coercer) do
-  entity Project
-
-  attribute :id,    Integer
-  attribute :attr1, String
-  attribute :attr2, String
-  attribute :attr3, String
-  attribute :attr4, String
-  attribute :attr5, String
-  attribute :attr6, String
-  attribute :attr7, String
-  attribute :attr8, String
-  attribute :attr9, String
+  spec.call(self)
 end
 
 record = Hash[id: '23', attr1: 'attr1', attr2: 'attr2',
