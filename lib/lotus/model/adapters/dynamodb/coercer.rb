@@ -126,6 +126,16 @@ module Lotus
           # @api private
           # @since 0.1.0
           def _compile!
+            _compile_skipped!
+            _compile_record!
+            _compile_serialization!
+          end
+
+          # Compile skipped klasses methods.
+          #
+          # @api private
+          # @since 0.1.1
+          def _compile_skipped!
             instance_eval(SKIPPED_KLASSES.map do |klass|
               %{
               def from_#{_method_name(klass)}(value)
@@ -137,19 +147,13 @@ module Lotus
               end
               }
             end.join("\n"))
+          end
 
-            code = @collection.attributes.map do |_,(klass,mapped)|
-              %{
-              def deserialize_#{ mapped }(value)
-                #{coercions_wrap(klass) { "from_#{_method_name(klass)}(value)" }}
-              end
-
-              def serialize_#{ mapped }(value)
-                from_#{_method_name(klass)}(value)
-              end
-              }
-            end.join("\n")
-
+          # Compile record methods.
+          #
+          # @api private
+          # @since 0.1.1
+          def _compile_record!
             instance_eval %{
               def to_record(entity)
                 if entity.id
@@ -164,9 +168,25 @@ module Lotus
                   Hash[*[#{ @collection.attributes.map{|name,(klass,mapped)| ":#{name},#{coercions_wrap(klass) { "to_#{_method_name(klass)}(record[:#{mapped}])" }}"}.join(',') }]]
                 )
               end
-
-              #{ code }
             }
+          end
+
+          # Compile deserialise/serialize methods.
+          #
+          # @api private
+          # @since 0.1.1
+          def _compile_serialization!
+            instance_eval(@collection.attributes.map do |_,(klass,mapped)|
+              %{
+              def deserialize_#{ mapped }(value)
+                #{coercions_wrap(klass) { "from_#{_method_name(klass)}(value)" }}
+              end
+
+              def serialize_#{ mapped }(value)
+                from_#{_method_name(klass)}(value)
+              end
+              }
+            end.join("\n"))
           end
 
           # Wraps string in Lotus::Model::Mapping::Coercions call if needed.
