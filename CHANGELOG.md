@@ -1,3 +1,9 @@
+v0.1.2
+------
+
+* Make Collection#update respect nil attributes
+* Fix continuation & limit bug
+
 v0.1.1
 ------
 
