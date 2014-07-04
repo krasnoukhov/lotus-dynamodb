@@ -248,7 +248,9 @@ module Lotus
           # @api private
           # @since 0.1.0
           def serialize_item(record)
-            Hash[record.map { |k, v| [k.to_s, format_attribute_value(v)] }]
+            Hash[record.delete_if { |_, v| v.nil? }.map do |k, v|
+              [k.to_s, format_attribute_value(v)]
+            end]
           end
 
           # Serialize given record or primary key to have proper attributes
@@ -282,7 +284,11 @@ module Lotus
           def serialize_attributes(entity)
             keys = key_schema.keys
             Hash[entity.reject { |k, _| keys.include?(k) }.map do |k, v|
-              [k.to_s, { value: format_attribute_value(v), action: "PUT" }]
+              if v.nil?
+                [k.to_s, { action: "DELETE" }]
+              else
+                [k.to_s, { value: format_attribute_value(v), action: "PUT" }]
+              end
             end]
           end
 

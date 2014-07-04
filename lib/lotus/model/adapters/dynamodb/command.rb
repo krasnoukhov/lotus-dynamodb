@@ -94,8 +94,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def _serialize(entity)
-            serialized = @collection.serialize(entity)
-            serialized.delete_if { |_, v| v.nil? }
+            @collection.serialize(entity)
           end
         end
       end

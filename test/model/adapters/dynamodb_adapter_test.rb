@@ -146,6 +146,15 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
       entity.id.must_equal id
       @adapter.find(collection, entity.id).must_equal entity
     end
+
+    it 'removes attribute' do
+      entity.name = nil
+      @adapter.update(collection, entity)
+
+      found_entity = @adapter.find(collection, entity.id)
+      found_entity.must_equal entity
+      found_entity.name.must_be_nil
+    end
   end
 
   describe '#delete' do
