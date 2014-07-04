@@ -840,6 +840,33 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
           result.must_equal [purchase1]
         end
       end
+
+      describe 'with large records set' do
+        before do
+          purchases.each do |entity|
+            @adapter.create(collection, entity)
+          end
+        end
+
+        let(:purchases) do
+          25.times.map do |i|
+            TestPurchase.new(
+              region: 'europe',
+              content: ('A'..'Z').to_a[i]*50_000,
+              created_at: Time.new,
+            )
+          end
+        end
+
+        it 'returns all of them' do
+          query = Proc.new {
+            where(region: 'europe').limit(24)
+          }
+
+          result = @adapter.query(collection, &query).count
+          result.must_equal 24
+        end
+      end
     end
 
     describe 'exists?' do

@@ -82,7 +82,8 @@ module Lotus
           # @since 0.1.0
           def all
             response = run
-            while !@options[:limit] && response.last_evaluated_key
+
+            while continue?(response)
               @options[:exclusive_start_key] = response.last_evaluated_key
               response = run(response)
             end
@@ -97,10 +98,11 @@ module Lotus
           # @since 0.1.1
           def each
             response = run
+
             entities = @collection.deserialize(response.entities)
             entities.each { |x| yield(x) }
 
-            while !@options[:limit] && response.last_evaluated_key
+            while continue?(response)
               response.entities = []
 
               @options[:exclusive_start_key] = response.last_evaluated_key
@@ -474,7 +476,7 @@ module Lotus
 
             response = run
 
-            while !@options[:limit] && response.last_evaluated_key
+            while continue?(response)
               @options[:exclusive_start_key] = response.last_evaluated_key
               response = run(response)
             end
@@ -589,6 +591,30 @@ module Lotus
           # @since 0.1.0
           def run(previous_response = nil)
             @dataset.public_send(operation, @options, previous_response)
+          end
+
+          # Check if request needs to be continued.
+          #
+          # @param previous_response [Response] deserialized response from a previous operation
+          #
+          # @return [Boolean]
+          #
+          # @api private
+          # @since 0.1.2
+          def continue?(previous_response)
+            return false unless previous_response.last_evaluated_key
+
+            if @options[:limit]
+              if @options[:limit] > previous_response.count
+                @options[:limit] = @options[:limit] - previous_response.count
+
+                true
+              else
+                false
+              end
+            else
+              true
+            end
           end
         end
       end
