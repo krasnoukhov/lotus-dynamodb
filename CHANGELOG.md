@@ -1,3 +1,8 @@
+v0.1.3
+------
+
+* Fix coercer to preserve nil attributes
+
 v0.1.2
 ------
 
