@@ -10,7 +10,7 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
       include Lotus::Entity
     end
 
-    TestPurchase = Struct.new(:id, :region, :subtotal, :item_ids, :content, :created_at) do
+    TestPurchase = Struct.new(:id, :region, :subtotal, :item_ids, :content, :created_at, :updated_at) do
       include Lotus::Entity
     end
 
@@ -42,6 +42,7 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
         attribute :item_ids,   Set
         attribute :content,    AWS::DynamoDB::Binary
         attribute :created_at, Time
+        attribute :updated_at, Time
 
         identity :uuid
       end
@@ -127,6 +128,19 @@ describe Lotus::Model::Adapters::DynamodbAdapter do
 
       entity.id.wont_be_nil
       @adapter.find(collection, entity.id).must_equal entity
+    end
+
+    describe 'preserves nil attributes' do
+      let(:collection) { :test_purchases }
+      let(:entity) { TestPurchase.new(region: "europe", created_at: Time.new) }
+
+      it do
+        entity.updated_at.must_equal nil
+        @adapter.create(collection, entity)
+
+        found_entity = @adapter.find(collection, "europe", entity.created_at)
+        found_entity.updated_at.must_be_nil
+      end
     end
   end
 

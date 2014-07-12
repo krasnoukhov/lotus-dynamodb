@@ -29,6 +29,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def from_array(value)
+            return if value.nil?
             _serialize(value)
           end
 
@@ -37,6 +38,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def to_array(value)
+            return if value.nil?
             _deserialize(value)
           end
 
@@ -45,6 +47,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def from_boolean(value)
+            return if value.nil?
             value ? 1 : 0
           end
 
@@ -53,6 +56,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def to_boolean(value)
+            return if value.nil?
             value.to_i == 1
           end
 
@@ -61,6 +65,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def from_date(value)
+            return if value.nil?
             value.to_time.to_i
           end
 
@@ -69,6 +74,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def to_date(value)
+            return if value.nil?
             Time.at(value.to_i).to_date
           end
 
@@ -77,6 +83,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def from_datetime(value)
+            return if value.nil?
             value.to_time.to_f
           end
 
@@ -85,6 +92,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def to_datetime(value)
+            return if value.nil?
             Time.at(value.to_f).to_datetime
           end
 
@@ -93,6 +101,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def from_hash(value)
+            return if value.nil?
             _serialize(value)
           end
 
@@ -101,6 +110,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def to_hash(value)
+            return if value.nil?
             _deserialize(value)
           end
 
@@ -109,6 +119,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def from_time(value)
+            return if value.nil?
             value.to_f
           end
 
@@ -117,6 +128,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           def to_time(value)
+            return if value.nil?
             Time.at(value.to_f)
           end
 
